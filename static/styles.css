@@ -1,0 +1,82 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to right, #ff9966, #ff5e62);
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: inline-block;
+    margin-top: 50px;
+    width: 40%;
+    backdrop-filter: blur(5px);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input, button, select {
+    margin: 10px;
+    padding: 12px;
+    width: 90%;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+}
+
+input {
+    background: white;
+    color: black;
+}
+
+button {
+    background: linear-gradient(to right, #ff9966, #ff5e62);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+    text-transform: uppercase;
+}
+
+button:hover {
+    background: linear-gradient(to right, #ff5e62, #ff9966);
+    transform: scale(1.05);
+}
+
+/* 팝업 스타일 */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: black;
+    width: 320px;
+}
+
+.popup h2 {
+    color: #ff5e62;
+}
+
+.popup button {
+    background: linear-gradient(to right, #36d1dc, #5b86e5);
+    color: white;
+}
+
+.popup button:hover {
+    background: linear-gradient(to right, #5b86e5, #36d1dc);
+}

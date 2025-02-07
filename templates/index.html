@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Signature Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function showPopup() {
+            document.getElementById("popup").style.display = "flex";
+        }
+
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+    </script>
+</head>
+<body onload="showPopup()">
+    <div class="container">
+        <h1>AI Signature Generator</h1>
+        <p>Upload an image of your handwriting, and we will create a custom signature for you.</p>
+
+        <div id="popup" class="popup">
+            <div class="popup-content">
+                <h2>Fill in the details</h2>
+                <form method="post" enctype="multipart/form-data">
+                    <label for="name">Your Name:</label>
+                    <input type="text" name="name" placeholder="Enter your name" required>
+                    
+                    <label for="impact">Desired Impact:</label>
+                    <input type="text" name="impact" placeholder="e.g. Professional, Elegant" required>
+                    
+                    <label for="usage">Usage Purpose:</label>
+                    <input type="text" name="usage" placeholder="e.g. Business, Personal" required>
+
+                    <label for="difficulty">Signature Complexity:</label>
+                    <select name="difficulty" required>
+                        <option value="highest">Highest</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    
+                    <button type="button" onclick="closePopup()">Confirm</button>
+                </form>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            <label for="file">Upload Handwriting Sample:</label>
+            <input type="file" name="file" accept="image/*" required>
+            
+            <button type="submit">Generate Signature</button>
+        </form>
+    </div>
+</body>
+</html>
