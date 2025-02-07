@@ -53,7 +53,18 @@ def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))  
+    app.run(host="0.0.0.0", port=port, debug=True)
 # cd "C:\Users\namkh\OneDrive\바탕 화면\python\.vs" 하고 python made_sign.py
 # 아우 ㅗㅈ나힘드렌
 
+# 파일 수정후 재업로드 방법법
+# git add requirements.txt(파일 이름)
+# git commit -m "Removed tensorflow_intel from requirements.txt"(파일 이름)
+# git push origin main
+
+# 파일 추가 후 업로드 방법법
+# git add runtime.txt
+#git commit -m "Added runtime.txt to specify Python version for Render"
+#git push origin main
+ 
