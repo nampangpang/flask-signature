@@ -11,12 +11,12 @@
     <form action="/" method="post" enctype="multipart/form-data">
         <label for="name">이름을 입력하세요:</label>
         <input type="text" name="name" required>
-    
-        <label for="impact">어떤 분위기를 원하시나요?</label>
-        <input type="text" name="impact" required>
-    
-        <label for="usage">사용처:</label>
-        <input type="text" name="usage" required>
+
+        <label for="impact">어떤 분위기를 원하시나요? (예: 강렬한, 부드러운, 우아한, 모던한, 전통적인 등)</label>
+        <input type="text" name="impact" placeholder="예: 강렬한, 부드러운" required>
+
+        <label for="usage">사용처를 입력하세요 (예: 회사, 계약서, 예술 작품, 쇼핑몰, 게임, SNS 등)</label>
+        <input type="text" name="usage" placeholder="예: 회사, 예술 작품" required>
 
         <label for="complexity">서명 난이도 선택:</label>
         <select name="complexity" required>
@@ -27,7 +27,7 @@
 
         <label for="file">손글씨 이미지를 업로드하세요:</label>
         <input type="file" name="file" required>
-    
+
         <button type="submit">서명 생성</button>
     </form>
 </body>
