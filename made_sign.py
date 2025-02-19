@@ -33,11 +33,14 @@ def generate_signature(name, impact, usage, handwriting_image):
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
-        name = request.form["이름을 알려주세요!"]
-        impact = request.form["어떤 인상을 주고 싶으신가요 ?"]
-        usage = request.form["사용처가 어디일까요 ?"]
-        file = request.files["손글씨체를 보여주세요!"]
+        name = request.form.get("name", "")  # 기본값 "" 설정
+        impact = request.form.get("impact", "")
+        usage = request.form.get("usage", "")
+        file = request.files.get("file")  # 파일은 request.files에서 가져와야 함
         
+        if not name or not impact or not usage or not file:
+            return "입력값이 부족합니다. 모든 항목을 채워주세요.", 400
+            
         if file:
             file_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(file_path)
@@ -53,8 +56,9 @@ def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  
+    port = int(os.environ.get("PORT", 5000))  # Render에서 자동 할당한 포트 사용
     app.run(host="0.0.0.0", port=port, debug=True)
+
 # cd "C:\Users\namkh\OneDrive\바탕 화면\python\.vs" 하고 python made_sign.py
 # 아우 ㅗㅈ나힘드렌
 
