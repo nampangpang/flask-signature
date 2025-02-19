@@ -12,6 +12,29 @@ PROCESSED_FOLDER = "processed"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
+# 분위기 키워드 매칭 (다양한 표현 추가)
+IMPACT_MAP = {
+    "강렬한": "bold", "파워풀한": "bold", "강한": "bold", "인상적인": "bold",
+    "부드러운": "soft", "우아한": "soft", "편안한": "soft", "따뜻한": "soft",
+    "아름다운": "elegant", "세련된": "elegant", "품격 있는": "elegant", "고급스러운": "elegant",
+    "전문적인": "professional", "비즈니스적인": "professional", "신뢰감 있는": "professional", "공식적인": "professional",
+    "캐주얼한": "casual", "가벼운": "casual", "친근한": "casual", "일상적인": "casual",
+    "모던한": "modern", "미니멀한": "modern", "심플한": "modern", "트렌디한": "modern",
+    "고전적인": "classic", "전통적인": "classic", "유서 깊은": "classic", "역사적인": "classic"
+}
+
+# 사용처 키워드 매칭 (다양한 사용처 추가)
+USAGE_MAP = {
+    "회사": "corporate", "비즈니스": "corporate", "직장": "corporate", "업무용": "corporate",
+    "계약서": "legal", "법률 문서": "legal", "공증": "legal", "공식 서류": "legal",
+    "예술 작품": "artistic", "디자인": "artistic", "일러스트": "artistic", "갤러리": "artistic",
+    "개인 서명": "personal", "사적인": "personal", "편지": "personal", "일기": "personal",
+    "공식 문서": "official", "정부 문서": "official", "공문": "official", "행정 문서": "official",
+    "쇼핑몰": "ecommerce", "온라인 쇼핑": "ecommerce", "마켓": "ecommerce", "비즈니스 사이트": "ecommerce",
+    "소셜 미디어": "social", "SNS": "social", "인스타그램": "social", "트위터": "social",
+    "게임": "gaming", "e스포츠": "gaming", "스트리밍": "gaming", "유튜브": "gaming"
+}
+
 def extract_handwriting(image_path):
     """손글씨만 추출하는 함수"""
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -46,6 +69,12 @@ def upload_file():
         complexity = request.form.get("complexity", "중").strip()
         file = request.files.get("file")
         
+        # AI가 이해할 수 있도록 변환
+        impact = IMPACT_MAP.get(impact, "default")  # 미리 정의된 분위기 키워드 없으면 default
+        usage = USAGE_MAP.get(usage, "general")  # 미리 정의된 사용처 키워드 없으면 general
+        
+        print(f"📌 Debug: Converted Impact: {impact}, Converted Usage: {usage}")
+        
         if not name or not impact or not usage or not file:
             return "입력값이 부족합니다. 모든 항목을 채워주세요.", 400
         
@@ -67,6 +96,7 @@ def processed_file(filename):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 # cd "C:\Users\namkh\OneDrive\바탕 화면\python\.vs" 하고 python made_sign.py
