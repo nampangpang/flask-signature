@@ -1,57 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Signature Generator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script>
-        function showPopup() {
-            document.getElementById("popup").style.display = "flex";
-        }
-
-        function closePopup() {
-            document.getElementById("popup").style.display = "none";
-        }
-    </script>
+    <title>AI 서명 생성기</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body onload="showPopup()">
-    <div class="container">
-        <h1>AI Signature Generator</h1>
-        <p>Upload an image of your handwriting, and we will create a custom signature for you.</p>
+<body>
+    <h2>AI 서명 생성기</h2>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <label for="name">이름을 입력하세요:</label>
+        <input type="text" name="name" required>
 
-        <div id="popup" class="popup">
-            <div class="popup-content">
-                <h2>Fill in the details</h2>
-                <form method="post" enctype="multipart/form-data">
-                    <label for="name">Your Name:</label>
-                    <input type="text" name="name" placeholder="Enter your name" required>
-                    
-                    <label for="impact">Desired Impact:</label>
-                    <input type="text" name="impact" placeholder="e.g. Professional, Elegant" required>
-                    
-                    <label for="usage">Usage Purpose:</label>
-                    <input type="text" name="usage" placeholder="e.g. Business, Personal" required>
+        <label for="impact">어떤 분위기를 원하시나요?</label>
+        <input type="text" name="impact" required>
 
-                    <label for="difficulty">Signature Complexity:</label>
-                    <select name="difficulty" required>
-                        <option value="highest">Highest</option>
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                    </select>
-                    
-                    <button type="button" onclick="closePopup()">Confirm</button>
-                </form>
-            </div>
-        </div>
+        <label for="usage">사용처:</label>
+        <input type="text" name="usage" required>
 
-        <form method="post" enctype="multipart/form-data">
-            <label for="file">Upload Handwriting Sample:</label>
-            <input type="file" name="file" accept="image/*" required>
-            
-            <button type="submit">Generate Signature</button>
-        </form>
-    </div>
+        <label for="file">손글씨 이미지를 업로드하세요:</label>
+        <input type="file" name="file" required>
+
+        <button type="submit">서명 생성</button>
+    </form>
 </body>
 </html>
