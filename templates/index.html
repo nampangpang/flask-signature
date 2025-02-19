@@ -11,16 +11,23 @@
     <form action="/" method="post" enctype="multipart/form-data">
         <label for="name">이름을 입력하세요:</label>
         <input type="text" name="name" required>
-
+    
         <label for="impact">어떤 분위기를 원하시나요?</label>
         <input type="text" name="impact" required>
-
+    
         <label for="usage">사용처:</label>
         <input type="text" name="usage" required>
 
+        <label for="complexity">서명 난이도 선택:</label>
+        <select name="complexity" required>
+            <option value="하">하 (간단한 서명)</option>
+            <option value="중" selected>중 (일반적인 서명)</option>
+            <option value="상">상 (복잡한 서명)</option>
+        </select>
+
         <label for="file">손글씨 이미지를 업로드하세요:</label>
         <input type="file" name="file" required>
-
+    
         <button type="submit">서명 생성</button>
     </form>
 </body>
