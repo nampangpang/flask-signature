@@ -5,12 +5,21 @@ from flask import Flask, request, render_template, send_from_directory
 from PIL import Image
 import pytesseract
 import random
+import tensorflow as tf
+from tensorflow.keras.models import load_model
 
 app = Flask(__name__, static_folder="static")
 UPLOAD_FOLDER = "uploads"
 PROCESSED_FOLDER = "processed"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
+
+# AI 모델 로드 (손글씨 스타일 분석 및 서명 생성)
+MODEL_PATH = "signature_model.h5"
+if os.path.exists(MODEL_PATH):
+    model = load_model(MODEL_PATH)
+else:
+    model = None  # 모델이 없는 경우 기본 OpenCV 처리 사용
 
 # 분위기 키워드 매칭 (다양한 표현 추가)
 IMPACT_MAP = {
@@ -38,6 +47,8 @@ USAGE_MAP = {
 def extract_handwriting(image_path):
     """손글씨만 추출하는 함수"""
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        raise ValueError(f"이미지를 불러올 수 없습니다: {image_path}")
     _, binary = cv2.threshold(image, 150, 255, cv2.THRESH_BINARY_INV)
     kernel = np.ones((3,3), np.uint8)
     binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=2)
@@ -48,17 +59,25 @@ def generate_signature(name, impact, usage, handwriting_image, complexity):
     handwriting_style = extract_handwriting(handwriting_image)
     height, width = handwriting_style.shape
     blank_canvas = np.ones((height, width), dtype=np.uint8) * 255
-    y_offset = 50
     
-    font = cv2.FONT_HERSHEY_SIMPLEX if complexity == "하" else cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-    thickness = 1 if complexity == "하" else 2 if complexity == "중" else 3
-    
-    signature_text = f"{name}"
-    if impact: signature_text += f" {impact}"
-    if usage: signature_text += f" ({usage})"
-    
-    cv2.putText(blank_canvas, signature_text, (50, y_offset), font, 1, (0, 0, 0), thickness)
-    return blank_canvas
+    if model:
+        input_data = np.expand_dims(handwriting_style, axis=0) / 255.0
+        generated_signature = model.predict(input_data)[0]
+        generated_signature = (generated_signature * 255).astype(np.uint8)
+        return generated_signature
+    else:
+        font = {
+            "하": cv2.FONT_HERSHEY_SIMPLEX,
+            "중": cv2.FONT_HERSHEY_COMPLEX,
+            "상": cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,
+            "최상": cv2.FONT_HERSHEY_SCRIPT_COMPLEX
+        }.get(complexity, cv2.FONT_HERSHEY_SIMPLEX)
+        
+        thickness = {"하": 1, "중": 2, "상": 3, "최상": 4}.get(complexity, 1)
+        font_scale = {"하": 1, "중": 1.5, "상": 2, "최상": 2.5}.get(complexity, 1)
+        
+        cv2.putText(blank_canvas, name, (50, 100), font, font_scale, (0, 0, 0), thickness)
+        return blank_canvas
 
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
@@ -69,14 +88,8 @@ def upload_file():
         complexity = request.form.get("complexity", "중").strip()
         file = request.files.get("file")
         
-        # AI가 이해할 수 있도록 변환
-        impact = IMPACT_MAP.get(impact, "default")  # 미리 정의된 분위기 키워드 없으면 default
-        usage = USAGE_MAP.get(usage, "general")  # 미리 정의된 사용처 키워드 없으면 general
-        
-        print(f"📌 Debug: Converted Impact: {impact}, Converted Usage: {usage}")
-        
-        if not name or not impact or not usage or not file:
-            return "입력값이 부족합니다. 모든 항목을 채워주세요.", 400
+        impact = IMPACT_MAP.get(impact, "default")
+        usage = USAGE_MAP.get(usage, "general")
         
         file_path = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(file_path)
@@ -96,7 +109,6 @@ def processed_file(filename):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-
 
 
 # cd "C:\Users\namkh\OneDrive\바탕 화면\python\.vs" 하고 python made_sign.py
