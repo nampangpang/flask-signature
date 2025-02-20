@@ -123,5 +123,10 @@ if __name__ == "__main__":
 #git commit -m "Added runtime.txt to specify Python version for Render"
 #git push origin main
  
+'''
+git add .
+git commit -m "Render 배포를 위한 설정 추가"
+git push origin main
 
+'''
 
