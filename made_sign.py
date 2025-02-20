@@ -110,7 +110,6 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
 
-
 # cd "C:\Users\namkh\OneDrive\바탕 화면\python\.vs" 하고 python made_sign.py
 # 아우 ㅗㅈ나힘드렌
 
