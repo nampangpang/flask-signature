@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 from flask import Flask, request, render_template, send_from_directory
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 import pytesseract
 import random
 import tensorflow as tf
@@ -17,9 +17,13 @@ os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 # AI 모델 로드 (손글씨 스타일 분석 및 서명 생성)
 MODEL_PATH = "signature_model.h5"
 if os.path.exists(MODEL_PATH):
-    model = load_model(MODEL_PATH)
+    try:
+        model = load_model(MODEL_PATH)
+    except Exception as e:
+        print(f"⚠️ 모델 로드 실패: {e}")
+        model = None
 else:
-    model = None  # 모델이 없는 경우 기본 OpenCV 처리 사용
+    model = None
 
 # 분위기 키워드 매칭 (다양한 표현 추가)
 IMPACT_MAP = {
@@ -44,8 +48,22 @@ USAGE_MAP = {
     "게임": "gaming", "e스포츠": "gaming", "스트리밍": "gaming", "유튜브": "gaming"
 }
 
+# 허용된 이미지 확장자
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# 한글 폰트 적용 함수
+def draw_text(img, text, position, font_size=40, font_path="static/fonts/NanumGothic-Regular.ttf"):
+    font = ImageFont.truetype(font_path, font_size)
+    img_pil = Image.fromarray(img)
+    draw = ImageDraw.Draw(img_pil)
+    draw.text(position, text, font=font, fill=(0, 0, 0))
+    return np.array(img_pil)
+
+# 손글씨 필체 추출 함수
 def extract_handwriting(image_path):
-    """손글씨만 추출하는 함수"""
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
     if image is None:
         raise ValueError(f"이미지를 불러올 수 없습니다: {image_path}")
@@ -55,41 +73,33 @@ def extract_handwriting(image_path):
     return binary
 
 def generate_signature(name, impact, usage, handwriting_image, complexity):
-    """AI가 분석한 스타일을 기반으로 서명을 생성하는 함수"""
     handwriting_style = extract_handwriting(handwriting_image)
     height, width = handwriting_style.shape
-    blank_canvas = np.ones((height, width), dtype=np.uint8) * 255
+    blank_canvas = np.ones((height, width, 3), dtype=np.uint8) * 255
+
+    font_size = {"하": 30, "중": 40, "상": 50, "최상": 60}.get(complexity, 40)
+    signature_text = f"{name}\n{impact}\n{usage}"
+    blank_canvas = draw_text(blank_canvas, signature_text, (50, 100), font_size)
     
-    if model:
-        input_data = np.expand_dims(handwriting_style, axis=0) / 255.0
-        generated_signature = model.predict(input_data)[0]
-        generated_signature = (generated_signature * 255).astype(np.uint8)
-        return generated_signature
-    else:
-        font = {
-            "하": cv2.FONT_HERSHEY_SIMPLEX,
-            "중": cv2.FONT_HERSHEY_COMPLEX,
-            "상": cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,
-            "최상": cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-        }.get(complexity, cv2.FONT_HERSHEY_SIMPLEX)
-        
-        thickness = {"하": 1, "중": 2, "상": 3, "최상": 4}.get(complexity, 1)
-        font_scale = {"하": 1, "중": 1.5, "상": 2, "최상": 2.5}.get(complexity, 1)
-        
-        cv2.putText(blank_canvas, name, (50, 100), font, font_scale, (0, 0, 0), thickness)
-        return blank_canvas
+    return blank_canvas
 
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
+        if "file" not in request.files:
+            return "파일이 없습니다.", 400
+        
+        file = request.files["file"]
+        if file.filename == "":
+            return "파일 이름이 비어 있습니다.", 400
+        
+        if not allowed_file(file.filename):
+            return "허용되지 않은 파일 형식입니다.", 400
+
         name = request.form.get("name", "").strip()
         impact = request.form.get("impact", "").strip()
         usage = request.form.get("usage", "").strip()
         complexity = request.form.get("complexity", "중").strip()
-        file = request.files.get("file")
-        
-        impact = IMPACT_MAP.get(impact, "default")
-        usage = USAGE_MAP.get(usage, "general")
         
         file_path = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(file_path)
@@ -108,7 +118,7 @@ def processed_file(filename):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)
 
 # cd "C:\Users\namkh\OneDrive\바탕 화면\python\.vs" 하고 python made_sign.py
 # 아우 ㅗㅈ나힘드렌
