@@ -129,9 +129,11 @@ if __name__ == "__main__":
 # git push origin main
 
 # 파일 추가 후 업로드 방법법
-# git add runtime.txt
-#git commit -m "Added runtime.txt to specify Python version for Render"
-#git push origin main
+'''
+ git add runtime.txt
+git commit -m "Added runtime.txt to specify Python version for Render"
+git push origin main
+ '''
  
 '''
 git add .
@@ -140,3 +142,6 @@ git push origin main
 
 '''
 
+'''
+가상환경으로 이동 venv\Scripts\activate
+'''
